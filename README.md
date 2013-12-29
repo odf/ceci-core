@@ -50,7 +50,7 @@ This gives up concurrency, but what about asynchronous calls? Let's write a simp
       return result;
     };
 
-The function `after` here returns a deferred value, `result`, which is resolved within the callback to `setTimeout`. This pattern may look a bit familiar to those who have worked with promises, but Ceci's deferreds are much simpler. Here's how we can use deferreds in go blocks:
+The function `after` here returns a deferred value `result` which is resolved within the callback to `setTimeout`. This pattern may look a bit familiar to those who have worked with promises, but Ceci's deferreds are much simpler. Here's how we can use them in go blocks:
 
     var done = false;
     
