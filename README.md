@@ -153,7 +153,7 @@ cc.go(function*() {
 });
 ```
 
-Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution for when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer ceci-channels will provide blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
+Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution for when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer [ceci-channels](https://github.com/odf/ceci-channels) provides blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
 
 License
 -------
