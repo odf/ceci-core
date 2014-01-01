@@ -5,7 +5,8 @@ var extend = function(obj, other) {
     obj[p] = other[p];
 };
 
-extend(exports, require('./src/RingBuffer'));
+exports.RingBuffer = require('./src/RingBuffer');
+
 extend(exports, require('./src/core'));
 extend(exports, require('./src/util'));
 
