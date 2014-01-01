@@ -3,6 +3,16 @@
 var cc = require('./core');
 
 
+var sleep = function(ms) {
+  var result = cc.defer();
+  var t = setTimeout(function() {
+    clearTimeout(t);
+    result.resolve();
+  }, ms);
+  return result;
+};
+
+
 var ncallback = function(deferred) {
   return function(err, val) {
     if (err)
@@ -41,6 +51,7 @@ var nodeify = function(deferred, callback) {
 
 
 module.exports = {
+  sleep    : sleep,
   ncallback: ncallback,
   nbind    : nbind,
   nodeify  : nodeify
