@@ -59,7 +59,6 @@ var go = function(generator) {
 
 
 module.exports = {
-  RingBuffer: RingBuffer,
-  defer     : defer,
-  go        : go
+  defer: defer,
+  go   : go
 };
