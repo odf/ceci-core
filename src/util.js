@@ -3,6 +3,30 @@
 var cc = require('./core');
 
 
+var chain = function(initial) {
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  return cc.go(function*() {
+    var val = initial;
+    var form;
+
+    for (var i = 0; i < args.length; ++i) {
+      form = args[i];
+      val = yield val;
+
+      if (typeof form == 'function')
+        val = form(val);
+      else if (Array.isArray(form) && typeof form[0] == 'function')
+        val = form[0].apply(null, [].concat(form[1], val, form.slice(2)));
+      else
+        val = form;
+    }
+
+    return val;
+  });
+};
+
+
 var sleep = function(ms) {
   var result = cc.defer();
   var t = setTimeout(function() {
@@ -51,6 +75,7 @@ var nodeify = function(deferred, callback) {
 
 
 module.exports = {
+  chain    : chain,
   sleep    : sleep,
   ncallback: ncallback,
   nbind    : nbind,
