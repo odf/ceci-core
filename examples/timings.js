@@ -2,9 +2,8 @@
 
 var cc = require('../index');
 
-
-cc.chain(null,
-  function() {
+var runner = function(code) {
+  return function() {
     var done = false;
 
     cc.go(function*() {
@@ -12,61 +11,33 @@ cc.chain(null,
       done = true;
     });
 
-    return cc.go(function*() {
-      var i, j;
+    return cc.go(code, function() { return done; });
+  };
+};
 
-      for (i = 0; ; ++i) {
-        if (done) {
-          console.log('loop executions per second: ' + i);
-          break;
-        }
-        else if (i % 50000 == 0)
-          j = yield i;
-        else
-          j = i;
-      }
-    })
-  },
-  function() {
-    var done = false;
 
-    cc.go(function*() {
-      yield cc.sleep(1000);
-      done = true;
-    });
+cc.chain(
+  null,
 
-    return cc.go(function*() {
-      var i, j;
+  runner(function*(done) {
+    var i, j;
+    for (i = 0; !done(); ++i)
+      j = (i % 50000 == 0) ? yield i : i;
+    console.log('loop executions per second: ' + i);
+  }),
 
-      for (i = 0; ; ++i) {
-        if (done) {
-          console.log('         yields per second: ' + i);
-          break;
-        }
-        else
-          j = yield i;
-      }
-    })
-  },
-  function() {
-    var done = false;
+  runner(function*(done) {
+    var i, j;
+    for (i = 0; !done(); ++i)
+      j = yield i;
+    console.log('         yields per second: ' + i);
+  }),
 
-    cc.go(function*() {
-      yield cc.sleep(1000);
-      done = true;
-    });
-
-    return cc.go(function*() {
-      var i, j;
-
-      for (i = 0; ; ++i) {
-        if (done) {
-          console.log('    go routines per second: ' + i);
-          break;
-        }
-        else
-          j = yield cc.go(function*() { return i; });
-      }
-    })
-  }
+  runner(function*(done) {
+    var i, j;
+    var block = function*() { return i; };
+    for (i = 0; !done(); ++i)
+      j = yield cc.go(block);
+    console.log('    go routines per second: ' + i);
+  })
 );
