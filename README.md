@@ -36,9 +36,9 @@ The output looks like this:
     I am go block 1
     I am go block 2
 
-Two go blocks are created by calling the `go()` function with a generator argument created with the `function*` keyword. The blocks run after the main program is finished. Whenever an expression preceded by `yield` is encountered, the current go block pauses after evaluating the expression, so that the other one can run.
+Two go blocks are created by calling the `go()` function with a generator argument (using the `function*` keyword). The blocks run after the main program is finished. Whenever an expression preceded by `yield` is encountered, the current go block pauses after evaluating the expression, so that the other one can run.
 
-This gives us concurrency, but what about asynchronous computations? Let's simulate one by writing a simple function that delivers a value after a delay:
+This gives us concurrency, but what about asynchronous computation? Let's simulate one by writing a simple function that delivers a value after a delay:
 
 ```javascript
 var cc = require('ceci-core');
@@ -153,7 +153,7 @@ cc.go(function*() {
 });
 ```
 
-Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution for when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer [ceci-channels](https://github.com/odf/ceci-channels) provides blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
+Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer [ceci-channels](https://github.com/odf/ceci-channels) provides blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
 
 License
 -------
