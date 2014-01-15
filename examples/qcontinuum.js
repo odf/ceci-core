@@ -3,7 +3,7 @@
 var Q  = require('q');
 var exec = require('child_process').exec
 
-var cc = require('../index');
+var cc = require('ceci-core');
 
 cc.go(function*() {
   var result = yield Q.nfcall(exec, 'ls -l');

@@ -2,9 +2,6 @@
   "name": "ceci-core",
   "version": "0.1.0",
   "main": "./index.js",
-  "devDependencies": {
-    "q": "0.9.7"
-  },
   "dependencies": {
     "setimmediate": "~1.0.1"
   }

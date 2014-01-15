@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs');
-var cc = require('../index');
+var cc = require('ceci-core');
 
 
 var content = function(path) {
