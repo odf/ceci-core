@@ -1,9 +1,20 @@
 ceci-core
 =========
 
+About
+-----
+
 Ceci is a Javascript library inspired by [Go](http://golang.org/)'s channels and goroutines and by [Clojure](http://clojure.org/)'s [core.async](https://github.com/clojure/core.async/). It depends on ES6 generators and requires a preprocessor to run under Javascript engines that do not yet support those. An easy way to use Ceci directly right now is under NodeJS 0.11.6 or higher with the `--harmony` option.
 
 Ceci currently has three parts or layers, where each subsequent layer depends on the previous ones. The first layer [ceci-core](https://github.com/odf/ceci-core) provides a mechanism for integrating asynchronous, non-blocking calls into Javascript code as if they were blocking. The second layer [ceci-channels](https://github.com/odf/ceci-channels) adds blocking channels as Ceci's primary message passing abstraction. The third layer [ceci-filters](https://github.com/odf/ceci-filters) provides higher order functions like `map`, `filter`, `reduce` and so on that operate on channels.
+
+Documentation
+-------------
+
+Find the full API documentation in the file API-DOC.md.
+
+Tutorial
+--------
 
 Just like other generator-based async libraries, ceci-core lets one integrate asynchronous, non-blocking calls into Javascript code in much the same manner as one would use regular blocking calls. This is achieved by a combination of two abstractions: go blocks and deferred values. The implementation tries to avoid unnecessary overhead as much as possible, so that many go blocks can run concurrently and communicate which each other efficiently.
 
