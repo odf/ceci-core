@@ -3,7 +3,7 @@ ceci-core
 
 Ceci is a Javascript library inspired by [Go](http://golang.org/)'s channels and goroutines and by [Clojure](http://clojure.org/)'s [core.async](https://github.com/clojure/core.async/). It depends on ES6 generators and requires a preprocessor to run under Javascript engines that do not yet support those. An easy way to use Ceci directly right now is under NodeJS 0.11.6 or higher with the `--harmony` option.
 
-Ceci currently has three parts or layers, where each subsequent layer depends on the previous ones. The first layer [ceci-core](https://github.com/odf/ceci-core) provides a mechanism for integrating asynchronous, non-blocking calls into Javascript code as if they were blocking. The second layer [ceci-channels](https://github.com/odf/ceci-channels) adds blocking channels as Ceci's main message passing abstraction. The third layer [ceci-filters](https://github.com/odf/ceci-filters) provides higher order functions like `map`, `filter`, `reduce` and so on that operate on channels.
+Ceci currently has three parts or layers, where each subsequent layer depends on the previous ones. The first layer [ceci-core](https://github.com/odf/ceci-core) provides a mechanism for integrating asynchronous, non-blocking calls into Javascript code as if they were blocking. The second layer [ceci-channels](https://github.com/odf/ceci-channels) adds blocking channels as Ceci's primary message passing abstraction. The third layer [ceci-filters](https://github.com/odf/ceci-filters) provides higher order functions like `map`, `filter`, `reduce` and so on that operate on channels.
 
 Just like other generator-based async libraries, ceci-core lets one integrate asynchronous, non-blocking calls into Javascript code in much the same manner as one would use regular blocking calls. This is achieved by a combination of two abstractions: go blocks and deferred values. The implementation tries to avoid unnecessary overhead as much as possible, so that many go blocks can run concurrently and communicate which each other efficiently.
 
@@ -36,7 +36,7 @@ The output looks like this:
     I am go block 1
     I am go block 2
 
-Two go blocks are created by calling the `go()` function with a generator argument (using the `function*` keyword). The blocks run after the main program is finished. Whenever an expression preceded by `yield` is encountered, the current go block pauses after evaluating the expression, so that the other one can run.
+Two go blocks are created by calling the `go` function with a generator argument (using the `function*` keyword). The blocks run after the main program is finished. Whenever an expression preceded by `yield` is encountered, the current go block pauses after evaluating the expression, so that the other one can run.
 
 This gives us concurrency, but what about asynchronous computation? Let's simulate one by writing a simple function that delivers a value after a delay:
 
@@ -142,7 +142,7 @@ var readLines = function(path) {
 };
 ```
 
-This shows how go blocks can be used in a straightforward way to pass on results of asynchronous computations. The call to `go()` returns a deferred which is eventually resolved with the return value from the go block itself. We can now use this from another go block in the usual way:
+This shows how go blocks can be used in a straightforward way to pass on results of asynchronous computations. The call to `go` returns a deferred which is eventually resolved with the return value from the go block itself. We can now use this from another go block in the usual way:
 
 ```javascript
 cc.go(function*() {
