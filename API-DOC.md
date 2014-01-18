@@ -3,7 +3,9 @@ The ceci-core API
 
 ####go `ceci.go(gen, args...)`
 
-Executes a go block. The first argument must be an ES6 generator function (created via `function*`), into which the remaining arguments are passed. Go blocks run uninterrupted until a `yield` is encountered, at which point control is passed to the next (possibly the same) go block that is able to continue.
+Executes a go block. The first argument must be an ES6 generator (created via `function*`), into which the remaining arguments are passed. Go blocks run uninterrupted until a `yield` is encountered, at which point control is passed to the next (possibly the same) go block that is able to continue.
+
+The `go` function returns a deferred value (see below) which is eventually resolved with the return value of the generator.
 
 ```javascript
 var gen = function*(name) { console.log('Goodbye'); yield null; console.log(name + '!'); };
