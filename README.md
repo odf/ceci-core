@@ -11,7 +11,7 @@ Ceci currently has three parts or layers, where each subsequent layer depends on
 Documentation
 -------------
 
-Find the full API documentation in the file API-DOC.md.
+Find the full API documentation [here](https://github.com/odf/ceci-core/wiki/API-Documentation).
 
 Tutorial
 --------
