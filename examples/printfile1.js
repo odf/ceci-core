@@ -18,10 +18,12 @@ var content = function(path) {
 };
 
 
+var split = function(text, sep) {
+  return text.split(sep);
+};
+
 var readLines = function(path) {
-  return cc.go(function*() {
-    return (yield content(path)).split('\n');
-  });
+  return cc.chain(content(path), [cc.lift(split), [], '\n']);
 };
 
 
