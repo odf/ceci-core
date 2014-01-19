@@ -1,7 +1,15 @@
 {
   "name": "ceci-core",
   "version": "0.1.0",
-  "main": "./index.js",
+  "main": "./prebuilt",
+  "scripts": {
+    "build": "./node_modules/.bin/browserify -t regeneratorify ./src/index.js -o ./prebuilt.js -s ceci-core",
+    "prepublish": "./node_modules/.bin/browserify -t regeneratorify ./src/index.js -o ./prebuilt.js -s ceci-core"
+  },
+  "devDependencies": {
+    "browserify": "~3.20.0",
+    "regeneratorify": "~0.0.2"
+  },
   "dependencies": {
     "setimmediate": "~1.0.1"
   }
