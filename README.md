@@ -169,7 +169,7 @@ Go blocks and deferreds get us out of "callback hell" and avoid the typical frag
 License
 -------
 
-Copyright (c) 2013 Olaf Delgado-Friedrichs.
+Copyright (c) 2014 Olaf Delgado-Friedrichs.
 
 Distributed under the MIT License.
 
