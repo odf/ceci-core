@@ -2,7 +2,13 @@
   "name": "ceci-core",
   "version": "0.1.0",
   "description": "A Go-inspired async library based on ES6 generators",
-  "keywords": ["async", "generators", "go", "clojure", "core.async"],
+  "keywords": [
+    "async",
+    "generators",
+    "go",
+    "clojure",
+    "core.async"
+  ],
   "homepage": "https://github.com/odf/ceci-core",
   "bugs": {
     "url": "https://github.com/odf/ceci-core/issues"
@@ -19,6 +25,9 @@
   },
   "dependencies": {
     "setimmediate": "~1.0.1"
+  },
+  "devDependencies": {
+    "jasmine-node": "~1.13.0"
   },
   "engines": {
     "node": ">=0.11.6"
