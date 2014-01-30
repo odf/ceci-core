@@ -39,18 +39,24 @@ var go = function(generator) {
   var args    = Array.prototype.slice.call(arguments, 1);
   var gen     = generator.apply(undefined, args);
   var result  = defer();
-  var succeed = function(val) { enqueue(function() { use(gen.next(val)); }); };
-  var fail    = function(val) { enqueue(function() { use(gen.throw(val)); }); };
+  var succeed = function(val) { enqueue(function() { use(val, true); }); };
+  var fail    = function(val) { enqueue(function() { use(val, false); }); };
 
-  var use = function(step) {
-    var val = step.value;
+  var use = function(last, success) {
+    try {
+      var step = success ? gen.next(last) : gen['throw'](last);
+      var val = step.value;
 
-    if (step.done)
-      result.resolve(val);
-    else if (val != null && typeof val.then == 'function')
-      val.then(succeed, fail);
-    else
-      succeed(val);
+      if (step.done)
+        result.resolve(val);
+      else if (val != null && typeof val.then == 'function')
+        val.then(succeed, fail);
+      else
+        succeed(val);
+    } catch (ex) {
+      result.reject(ex);
+      return;
+    }
   };
 
   succeed();
