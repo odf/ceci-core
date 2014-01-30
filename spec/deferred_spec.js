@@ -1,3 +1,5 @@
+'use strict';
+
 var cc = require('../index');
 
 
@@ -31,11 +33,11 @@ var checkOnRejected = function(deferred, expected, done) {
 describe('a deferred', function() {
   var deferred;
 
-  describe('that has not been resolved', function() {
-    beforeEach(function() {
-      deferred = cc.defer();
-    });
+  beforeEach(function() {
+    deferred = cc.defer();
+  });
 
+  describe('that has not been resolved', function() {
     it('can be resolved', function() {
       expect(function() { deferred.resolve(); }).not.toThrow();
     });
@@ -75,7 +77,6 @@ describe('a deferred', function() {
     var val = { oh: 'see' };
 
     beforeEach(function() {
-      deferred = cc.defer();
       deferred.resolve(val);
     });
 
@@ -111,7 +112,6 @@ describe('a deferred', function() {
     var msg = "Oops!";
 
     beforeEach(function() {
-      deferred = cc.defer();
       deferred.reject(msg);
     });
 
@@ -146,6 +146,61 @@ describe('a deferred', function() {
 
     it('calls its onReject function', function(done) {
       checkOnRejected(deferred, msg, done);
+    });
+  });
+
+  describe('that has been subscribed to', function() {
+    var resolvedWith = null;
+    var rejectedWith = null;
+
+    beforeEach(function() {
+      resolvedWith = null;
+      rejectedWith = null;
+      deferred.then(function(val) { resolvedWith = val; },
+                    function(msg) { rejectedWith = msg; });
+    });
+
+    it('can be resolved', function() {
+      expect(function() { deferred.resolve(); }).not.toThrow();
+    });
+
+    it('can be rejected', function() {
+      expect(function() { deferred.reject(); }).not.toThrow();
+    });
+
+    it('reports itself as unresolved', function() {
+      expect(deferred.isResolved()).toBeFalsy();
+    });
+
+    it('cannot be used in a yield', function(done) {
+      cc.go(function*() {
+        var thrown = null;
+        try {
+          yield deferred;
+        } catch(ex) {
+          thrown = ex;
+        }
+        expect(thrown).not.toEqual(null);
+        done();
+      });
+    });
+
+    it('cannot be subscribed to again', function() {
+      expect(function() { deferred.then() }).toThrow();
+    });
+
+    it('calls only its onResolve function when resolved', function() {
+      var val = { oh: 'my' };
+      deferred.resolve(val);
+      expect(resolvedWith).toEqual(val);
+      expect(rejectedWith).toBe(null);
+    });
+
+    it('calls only its onReject function when rejected', function() {
+      var msg = "Nope!";
+      deferred.reject(msg);
+      expect(resolvedWith).toBe(null);
+      expect(rejectedWith).toEqual(msg);
     });
   });
 });
