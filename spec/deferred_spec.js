@@ -3,17 +3,20 @@
 var cc = require('../index');
 
 
+var delay = function(action) {
+  cc.go(function*() {
+    yield cc.sleep(1);
+    action();
+  });
+};
+
 var checkOnResolve = function(deferred, expected, done) {
   var resolvedWith = null;
 
   deferred.then(function(val) { resolvedWith = val; },
                 function() {});
 
-  cc.go(function*() {
-    yield cc.sleep(1);
-    expect(resolvedWith).toEqual(expected);
-    done();
-  });
+  delay(function() { expect(resolvedWith).toEqual(expected); done(); });
 };
 
 var checkOnRejected = function(deferred, expected, done) {
@@ -22,11 +25,7 @@ var checkOnRejected = function(deferred, expected, done) {
   deferred.then(function() {},
                 function(msg) { rejectedWith = msg; });
 
-  cc.go(function*() {
-    yield cc.sleep(1);
-    expect(rejectedWith).toEqual(expected);
-    done();
-  });
+  delay(function() { expect(rejectedWith).toEqual(expected); done(); });
 };
 
 
@@ -57,8 +56,7 @@ describe('a deferred', function() {
         yielded = yield deferred;
       });
 
-      cc.go(function*() {
-        yield cc.sleep(1);
+      delay(function() {
         expect(yielded).toBe(null);
         done();
       });
@@ -150,8 +148,8 @@ describe('a deferred', function() {
   });
 
   describe('that has been subscribed to', function() {
-    var resolvedWith = null;
-    var rejectedWith = null;
+    var resolvedWith;
+    var rejectedWith;
 
     beforeEach(function() {
       resolvedWith = null;
@@ -201,6 +199,86 @@ describe('a deferred', function() {
       deferred.reject(msg);
       expect(resolvedWith).toBe(null);
       expect(rejectedWith).toEqual(msg);
+    });
+  });
+
+  describe('that has been used in a yield', function() {
+    var resolvedWith;
+    var rejectedWith;
+
+    beforeEach(function() {
+      resolvedWith = null;
+      rejectedWith = null;
+      cc.go(function*() {
+        try {
+          resolvedWith = yield deferred;
+        } catch(ex) {
+          rejectedWith = ex;
+        }
+      });
+    });
+
+    it('can be resolved', function(done) {
+      delay(function() {
+        expect(function() { deferred.resolve(); }).not.toThrow();
+        done();
+      });
+    });
+
+    it('can be rejected', function(done) {
+      delay(function() {
+        expect(function() { deferred.reject(); }).not.toThrow();
+        done();
+      });
+    });
+
+    it('reports itself as unresolved', function(done) {
+      delay(function() {
+        expect(deferred.isResolved()).toBeFalsy();
+        done();
+      });
+    });
+
+    it('cannot be used in another yield', function(done) {
+      cc.go(function*() {
+        var thrown = null;
+        try {
+          yield deferred;
+        } catch(ex) {
+          thrown = ex;
+        }
+        expect(thrown).not.toEqual(null);
+        done();
+      });
+    });
+
+    it('cannot be subscribed to', function(done) {
+      delay(function() {
+        expect(function() { deferred.then() }).toThrow();
+        done();
+      });
+    });
+
+    it('completes the yield when resolved', function(done) {
+      var val = { oh: 'my' };
+      deferred.resolve(val);
+
+      delay(function() {
+        expect(resolvedWith).toEqual(val);
+        expect(rejectedWith).toBe(null);
+        done();
+      });
+    });
+
+    it('throws within the yielding go block when rejected', function(done) {
+      var msg = "Nope!";
+      deferred.reject(msg);
+
+      delay(function() {
+        expect(resolvedWith).toBe(null);
+        expect(rejectedWith).toEqual(msg);
+        done();
+      });
     });
   });
 });
