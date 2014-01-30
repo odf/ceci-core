@@ -1,5 +1,33 @@
 var cc = require('../index');
 
+
+var checkOnResolve = function(deferred, expected, done) {
+  var resolvedWith = null;
+
+  deferred.then(function(val) { resolvedWith = val; },
+                function() {});
+
+  cc.go(function*() {
+    yield cc.sleep(1);
+    expect(resolvedWith).toEqual(expected);
+    done();
+  });
+};
+
+var checkOnRejected = function(deferred, expected, done) {
+  var rejectedWith = null;
+
+  deferred.then(function() {},
+                function(msg) { rejectedWith = msg; });
+
+  cc.go(function*() {
+    yield cc.sleep(1);
+    expect(rejectedWith).toEqual(expected);
+    done();
+  });
+};
+
+
 describe('a deferred', function() {
   var deferred;
 
@@ -8,7 +36,15 @@ describe('a deferred', function() {
       deferred = cc.defer();
     });
 
-    it('it reports itself as unresolved', function() {
+    it('can be resolved', function() {
+      expect(function() { deferred.resolve(); }).not.toThrow();
+    });
+
+    it('can be rejected', function() {
+      expect(function() { deferred.reject(); }).not.toThrow();
+    });
+
+    it('reports itself as unresolved', function() {
       expect(deferred.isResolved()).toBeFalsy();
     });
 
@@ -27,29 +63,11 @@ describe('a deferred', function() {
     });
 
     it('does not call its onResolve function', function(done) {
-      var onResolveCalled = false;
-
-      deferred.then(function() { onResolveCalled = true; },
-                    function() {});
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onResolveCalled).toBe(false);
-        done();
-      });
+      checkOnResolve(deferred, null, done);
     });
 
     it('does not call its onReject function', function(done) {
-      var onRejectCalled = false;
-
-      deferred.then(function() {},
-                    function() { onRejectCalled = true; });
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onRejectCalled).toBe(false);
-        done();
-      });
+      checkOnRejected(deferred, null, done);
     });
   });
 
@@ -59,6 +77,14 @@ describe('a deferred', function() {
     beforeEach(function() {
       deferred = cc.defer();
       deferred.resolve(val);
+    });
+
+    it('cannot be resolved', function() {
+      expect(function() { deferred.resolve(); }).toThrow();
+    });
+
+    it('cannot be rejected', function() {
+      expect(function() { deferred.reject(); }).toThrow();
     });
 
     it('reports itself as resolved', function() {
@@ -73,29 +99,11 @@ describe('a deferred', function() {
     });
 
     it('calls its onResolve function', function(done) {
-      var onResolveCalled = false;
-
-      deferred.then(function() { onResolveCalled = true; },
-                    function() {});
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onResolveCalled).toBe(true);
-        done();
-      });
+      checkOnResolve(deferred, val, done);
     });
 
     it('does not call its onReject function', function(done) {
-      var onRejectCalled = false;
-
-      deferred.then(function() {},
-                    function() { onRejectCalled = true; });
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onRejectCalled).toBe(false);
-        done();
-      });
+      checkOnRejected(deferred, null, done);
     });
   });
 
@@ -105,6 +113,14 @@ describe('a deferred', function() {
     beforeEach(function() {
       deferred = cc.defer();
       deferred.reject(msg);
+    });
+
+    it('cannot be resolved', function() {
+      expect(function() { deferred.resolve(); }).toThrow();
+    });
+
+    it('cannot be rejected', function() {
+      expect(function() { deferred.reject(); }).toThrow();
     });
 
     it('reports itself as resolved', function() {
@@ -125,29 +141,11 @@ describe('a deferred', function() {
     });
 
     it('does not call its onResolve function', function(done) {
-      var onResolveCalled = false;
-
-      deferred.then(function() { onResolveCalled = true; },
-                    function() {});
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onResolveCalled).toBe(false);
-        done();
-      });
+      checkOnResolve(deferred, null, done);
     });
 
     it('calls its onReject function', function(done) {
-      var onRejectCalled = false;
-
-      deferred.then(function() {},
-                    function() { onRejectCalled = true; });
-
-      cc.go(function*() {
-        yield cc.sleep(1);
-        expect(onRejectCalled).toBe(true);
-        done();
-      });
+      checkOnRejected(deferred, msg, done);
     });
   });
 });
