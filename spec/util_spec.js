@@ -47,3 +47,35 @@ describe('the sleep function', function() {
     });
   });
 });
+
+
+describe('the ncallback function returns a callback that', function() {
+  var result, cb;
+
+  beforeEach(function() {
+    result = cc.defer();
+    cb = cc.ncallback(result);
+  });
+
+  it('when called with no error, resolves its deferred', function(done) {
+    cb(null, 5);
+    cc.go(function*() {
+      expect(yield result).toEqual(5);
+      done();
+    });
+  });
+
+  it('when called with an error, rejects its deferred', function(done) {
+    cb('Nope!');
+    cc.go(function*() {
+      var thrown;
+      try {
+        yield result;
+      } catch(ex) {
+        thrown = ex;
+      }
+      expect(thrown.message).toEqual('Nope!');
+      done();
+    });
+  });
+});
