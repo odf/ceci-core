@@ -36,6 +36,53 @@ describe('the lift function', function() {
 });
 
 
+describe('the chain function', function() {
+  var fn = function() {
+    var args = Array.prototype.slice.call(arguments);
+    return cc.go(function*() {
+      return '#' + args.join('#') + '#';
+    });
+  };
+
+  it('when given only an initial value, returns it unchanged', function(done) {
+    cc.go(function*() {
+      expect(yield cc.chain(5)).toEqual(5);
+      done();
+    });
+  });
+
+  it('when given a single form, applies it', function(done) {
+    cc.go(function*() {
+      expect(yield cc.chain(5, fn)).toEqual('#5#');
+      expect(yield cc.chain(5, [fn, [], 7, 11])).toEqual('#5#7#11#');
+      expect(yield cc.chain(5, [fn, 3])).toEqual('#3#5#');
+      expect(yield cc.chain(5, [fn, [2,3]])).toEqual('#2#3#5#');
+      expect(yield cc.chain(5, [fn, 3, 7, 11])).toEqual('#3#5#7#11#');
+      expect(yield cc.chain(5, [fn, [2, 3], 7, 11])).toEqual('#2#3#5#7#11#');
+      done();
+    });
+  });
+
+  it('when given multiple forms, applies them in order', function(done) {
+    var split = function(str, sep) { return str.split(sep); };
+
+    cc.go(function*() {
+      expect(yield cc.chain(5, [fn, [2, 3], 7, 11], [split, [], '#']))
+        .toEqual(['', '2', '3', '5', '7', '11', '']);
+      done();
+    });
+  });
+
+  it('interprets non-form arguments as replacement values', function(done) {
+    cc.go(function*() {
+      expect(yield cc.chain(5, [fn, 3, 7], 'hello', [fn, 2, 9]))
+        .toEqual('#2#hello#9#');
+      done();
+    });
+  });
+});
+
+
 describe('the sleep function', function() {
   it('delays execution for approximately the specified time', function(done) {
     cc.go(function*() {
