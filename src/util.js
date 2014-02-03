@@ -31,6 +31,8 @@ var chain = function(initial) {
         val = form(val);
       else if (Array.isArray(form) && typeof form[0] == 'function')
         val = form[0].apply(null, [].concat(form[1], [val], form.slice(2)));
+      else if (Array.isArray(form) && typeof form[0] == 'string')
+        val = val[form[0]].apply(val, form.slice(1));
       else
         val = form;
     }

@@ -54,6 +54,7 @@ describe('the chain function', function() {
   it('when given a single form, applies it', function(done) {
     cc.go(function*() {
       expect(yield cc.chain(5, fn)).toEqual('#5#');
+      expect(yield cc.chain(5, ['toString', 2])).toEqual('101');
       expect(yield cc.chain(5, [fn, [], 7, 11])).toEqual('#5#7#11#');
       expect(yield cc.chain(5, [fn, 3])).toEqual('#3#5#');
       expect(yield cc.chain(5, [fn, [2,3]])).toEqual('#2#3#5#');
@@ -64,11 +65,15 @@ describe('the chain function', function() {
   });
 
   it('when given multiple forms, applies them in order', function(done) {
-    var split = function(str, sep) { return str.split(sep); };
+    var toInt = function(s) { return parseInt(s); };
 
     cc.go(function*() {
-      expect(yield cc.chain(5, [fn, [2, 3], 7, 11], [split, [], '#']))
-        .toEqual(['', '2', '3', '5', '7', '11', '']);
+      expect(yield cc.chain(5,
+                            [fn, [2, 3], 7, 11],
+                            ['split', '#'],
+                            ['slice', 1, 6],
+                            ['map', toInt]))
+        .toEqual([2, 3, 5, 7, 11]);
       done();
     });
   });
