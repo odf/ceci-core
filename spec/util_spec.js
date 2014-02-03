@@ -68,7 +68,7 @@ describe('the ncallback function returns a callback that', function() {
   it('when called with an error, rejects its deferred', function(done) {
     cb('Nope!');
     cc.go(function*() {
-      var thrown;
+      var thrown = {};
       try {
         yield result;
       } catch(ex) {
@@ -76,6 +76,87 @@ describe('the ncallback function returns a callback that', function() {
       }
       expect(thrown.message).toEqual('Nope!');
       done();
+    });
+  });
+});
+
+
+describe('the nbind function returns a wrapper that', function() {
+  var obj = {
+    value: 5,
+
+    method: function(x, cb) {
+      if (x != this.value)
+        cb('expecting a ' + this.value);
+      else
+        cb(null, 'thanks for the ' + this.value);
+    }
+  };
+
+  var wrapper = cc.nbind(obj.method, obj);
+
+  it('upon success resolves the deferred it returns', function(done) {
+    var val = obj.value;
+    cc.go(function*() {
+      expect(yield wrapper(val)).toEqual('thanks for the ' + val);
+      done();
+    });
+  });
+
+  it('upon success rejects the deferred it returns', function(done) {
+    var val = obj.value + 1;
+    cc.go(function*() {
+      var thrown = {};
+      try {
+        yield wrapper(val);
+      } catch(ex) {
+        thrown = ex;
+      }
+      expect(thrown.message).toEqual('expecting a ' + obj.value);
+      done();
+    });
+  });
+});
+
+
+describe('the nodeify function', function() {
+  var result;
+
+  beforeEach(function() {
+    result = cc.defer();
+  });
+
+  describe('when given a callback', function() {
+    var outcome;
+
+    beforeEach(function() {
+      outcome = null;
+
+      cc.nodeify(result, function(err, val) {
+        outcome = err ? { err: err } : { val: val };
+      });
+    });
+
+    it('calls it with no error upon deferred resolution', function(done) {
+      result.resolve('Hello callback!');
+      cc.go(function*() {
+        expect(outcome).toEqual({ val: 'Hello callback!' });
+        done();
+      });
+    });
+
+    it('calls it with an error upon deferred rejection', function(done) {
+      result.reject('O noes!');
+      cc.go(function*() {
+        expect(outcome).toEqual({ err: 'O noes!' });
+        done();
+      });
+    });
+  });
+
+  describe('when given no callback', function() {
+    it('simply returns its argument', function() {
+      expect(cc.nodeify(result)).toBe(result);
     });
   });
 });
