@@ -2,7 +2,7 @@
 
 require('setimmediate');
 
-var RingBuffer = require('./RingBuffer');
+var RingBuffer = require('ceci-buffers').impl.RingBuffer;
 var Deferred   = require('./Deferred');
 
 
