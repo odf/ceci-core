@@ -24,7 +24,7 @@
     "url": "https://github.com/odf/ceci-core"
   },
   "dependencies": {
-    "ceci-buffers": "odf/ceci-buffers",
+    "ceci-buffers": "~0.1.0",
     "setimmediate": "~1.0.1"
   },
   "devDependencies": {
