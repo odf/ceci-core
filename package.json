@@ -27,7 +27,7 @@
   "main": "./build/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/odf/ceci-core"
+    "url": "https://github.com/odf/ceci-core.git"
   },
   "dependencies": {
     "ceci-buffers": "~0.1.0",
