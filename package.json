@@ -1,6 +1,6 @@
 {
   "name": "ceci-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Go-inspired async library based on ES6 generators",
   "keywords": [
     "async",
@@ -18,14 +18,7 @@
     "name": "Olaf Delgado-Friedrichs",
     "email": "olaf.delgado@gmail.com"
   },
-  "files": [
-    "build/index.js",
-    "build/src",
-    "src",
-    "es6.js",
-    "LICENSE"
-  ],
-  "main": "./build/index.js",
+  "main": "./lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/odf/ceci-core.git"
@@ -42,8 +35,7 @@
     "node": ">=0.11.6"
   },
   "scripts": {
-    "build": "make",
     "prepublish": "make",
-    "test": "./node_modules/.bin/jasmine-node build"
+    "test": "./node_modules/.bin/jasmine-node lib"
   }
 }

@@ -1,4 +1,4 @@
-BUILD=../build/src
+BUILD=../lib/src
 
 .SUFFIXES:	.js .jso
 

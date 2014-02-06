@@ -1,4 +1,4 @@
-BUILD=./build
+BUILD=./lib
 
 
 all:	$(BUILD)/index.js
@@ -15,7 +15,7 @@ distclean:
 	$(MAKE) -C spec distclean
 
 test:	all
-	./node_modules/.bin/jasmine-node build
+	./node_modules/.bin/jasmine-node lib
 
 $(BUILD)/index.js:	es6.js
 	mkdir -p $(BUILD) && \
