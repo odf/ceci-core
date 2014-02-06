@@ -18,6 +18,12 @@
     "name": "Olaf Delgado-Friedrichs",
     "email": "olaf.delgado@gmail.com"
   },
+  "files": [
+    "build",
+    "src",
+    "es6.js",
+    "LICENSE"
+  ],
   "main": "./build/index.js",
   "repository": {
     "type": "git",
