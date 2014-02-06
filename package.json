@@ -18,7 +18,7 @@
     "name": "Olaf Delgado-Friedrichs",
     "email": "olaf.delgado@gmail.com"
   },
-  "main": "./index.js",
+  "main": "./build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/odf/ceci-core"
@@ -28,9 +28,15 @@
     "setimmediate": "~1.0.1"
   },
   "devDependencies": {
+    "regenerator": "~0.3.9",
     "jasmine-node": "~1.13.0"
   },
   "engines": {
     "node": ">=0.11.6"
+  },
+  "scripts": {
+    "build": "make",
+    "prepublish": "make",
+    "test": "./node_modules/.bin/jasmine-node build"
   }
 }
