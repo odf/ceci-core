@@ -5,5 +5,5 @@ var extend = function(obj, other) {
     obj[p] = other[p];
 };
 
-extend(exports, require('./src/core'));
-extend(exports, require('./src/util'));
+module.exports = require('./src/core');
+extend(module.exports, require('./src/util'));

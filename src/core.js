@@ -30,17 +30,23 @@ var scheduler = function(size) {
 var enqueue = scheduler();
 
 
-var defer = function() {
+var Ceci = module.exports = {};
+
+Ceci.longStackSupport = false;
+
+
+Ceci.defer = function() {
   return new Deferred();
 };
 
 
-var go = function(generator) {
+Ceci.go = function(generator) {
   var args    = Array.prototype.slice.call(arguments, 1);
   var gen     = generator.apply(undefined, args);
-  var result  = defer();
+  var result  = Ceci.defer();
   var succeed = function(val) { enqueue(function() { use(val, true); }); };
   var fail    = function(val) { enqueue(function() { use(val, false); }); };
+  var context = Ceci.longStackSupport ? new Error() : null;
 
   var use = function(last, success) {
     try {
@@ -54,6 +60,10 @@ var go = function(generator) {
       else
         succeed(val);
     } catch (ex) {
+      if (context)
+        ex.stack = 
+        ex.stack.replace(/\s*at GeneratorFunctionPrototype.next .*(\n.*)*/, '')
+        + context.stack.replace(/.*/, '');
       result.reject(ex);
       return;
     }
@@ -61,10 +71,4 @@ var go = function(generator) {
 
   succeed();
   return result;
-};
-
-
-module.exports = {
-  defer: defer,
-  go   : go
 };
