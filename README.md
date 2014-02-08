@@ -41,6 +41,8 @@ Tutorial
 
 Just like other generator-based async libraries, ceci-core lets one integrate asynchronous, non-blocking calls into Javascript code in much the same manner as one would use regular blocking calls. This is achieved by a combination of two abstractions: go blocks and deferred values. Special care was taken to support concurrency and composability of go blocks, which forms the basis for the channel abstraction introduced in the [ceci-channels](https://github.com/odf/ceci-channels) package.
 
+###Go Blocks
+
 Let's look at a simple example:
 
 ```javascript    
@@ -71,6 +73,8 @@ The output looks like this:
     I am go block 2
 
 Two go blocks are created by calling the `go` function with a generator argument (using the `function*` keyword). The blocks run after the main program is finished. Whenever an expression preceded by `yield` is encountered, the current go block pauses after evaluating the expression, so that the other one can run.
+
+###Deferreds
 
 This gives us concurrency, but what about asynchronous computation? Let's simulate one by writing a simple function that delivers a value after a delay:
 
@@ -125,6 +129,8 @@ The output looks like this:
 
 A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword. In this example, while the first go block is suspended, the second one can execute its loop a number of times. It is important to remember that Javascript is single-threaded, which means that executing a `yield` is the only way for a go block to be suspended and allow event handlers or other go blocks to run.
 
+###Deferreds vs Promises
+
 Another point worth noting is that Ceci's deferreds are not meant to be passed along and shared like promises. They are basically throw-away objects with the single purpose of decoupling the producer and consumer of a value. This is because Ceci's higher-level facilities for composing asynchronous computations are based on blocking channels as in Go rather than promises, and the extra functionality such as support for multiple callbacks or chaining is not needed at this level. That said, Ceci also lets us apply a `yield` directly to a promise, which can come in handy when working with libraries that already provide these. To demonstrate, let's rewrite the `after` function from above so that it uses the [q](https://github.com/kriskowal/q/tree/v0.9) library to construct a promise:
 
 ```javascript
@@ -143,6 +149,8 @@ var after = function(ms, val) {
 ```
 
 This produces exactly the same output when used with the remaining code from the previous example.
+
+###An Example Program
 
 To finish off with a slightly more complex example, we will write a small NodeJS application that prints out a file with line numbers prepended to every fifth line. We start with a wrapper for the `readFile` function from Node's `fs` library:
 
@@ -186,6 +194,8 @@ cc.go(function*() {
     console.log((i % 5 == 0 ? i : '') + '\t' + lines[i-1]);
 });
 ```
+
+###What's Next?
 
 Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer [ceci-channels](https://github.com/odf/ceci-channels) provides blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
 
