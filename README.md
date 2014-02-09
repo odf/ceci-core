@@ -74,60 +74,73 @@ Two go blocks are created by calling the `go` function with a generator argument
 
 ###Deferreds
 
-This gives us concurrency, but what about asynchronous computation? Let's simulate one by writing a simple function that delivers a value after a delay:
+Things get more interesting when we add asynchronous calls to the mix. The following code wraps a Node-style callback into a deferred value:
 
 ```javascript
+var fs = require('fs');
 var cc = require('ceci-core');
 
-var after = function(ms, val) {
+var readFile = function(name) {
   var result = cc.defer();
 
-  setTimeout(function() {
-    result.resolve(val.split('').reverse().join(''));
-  }, ms);
+  fs.readFile(name, function(err, val) {
+    if (err)
+      result.reject(new Error(err));
+    else
+      result.resolve(val);
+  });
 
   return result;
 };
 ```
 
-The function `after` here returns a deferred value `result` which is resolved within the callback to `setTimeout`. This pattern may look a bit familiar to those who have worked with promises, but Ceci's deferreds are much simpler. Here's how we can use them in go blocks:
+This pattern will look quite familiar to those who have worked with promises, but Ceci's deferreds are much simpler. Here's how we can use them in go blocks:
 
 ```javascript
-var done = false;
-
 cc.go(function*() {
-  console.log(yield after(1000, ".ereht era eW"));
-  done = true;
-});
-
-cc.go(function*() {
-  var x;
-  for (;;) {
-    x = yield after(100, "?tey ereht ew erA");
-    if (done)
-      break;
-    else
-      console.log(x);
-  }
+  console.log((yield readFile('package.json')).length);
+  console.log((yield readFile('LICENSE')).length);
+  console.log((yield readFile('README.md')).length);
 });
 ```
 
-The output looks like this:
+The output looks something like this:
 
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    Are we there yet?
-    We are there.
+    885
+    1090
+    8753
 
-A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword. In this example, while the first go block is suspended, the second one can execute its loop a number of times.
+A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword.
 
-It is important to remember that Javascript is single-threaded, which means that executing a `yield` is the only way for a go block to be suspended and allow event handlers or other go blocks to run.
+The code above reads the three files sequentially. We can instead read in parallel while still keeping the output in order by separating the function calls from the `yield` statements that force the results:
+
+```javascript
+cc.go(function*() {
+  var a = readFile('package.json');
+  var b = readFile('LICENSE');
+  var c = readFile('README.md');
+  
+  console.log((yield a).length);
+  console.log((yield b).length);
+  console.log((yield c).length);
+});
+```
+
+Finally, we can split the code into independent go routines that run concurrently:
+
+```javascript
+var showLength = function(filename) {
+  cc.go(function*() {
+    console.log(filename + ':', (yield readFile(filename)).length);
+  });
+};
+
+showLength('package.json');
+showLength('LICENSE');
+showLength('README.md');
+```
+
+The order of the output lines now depends on which reads finished first and can be different between runs.
 
 ###Deferreds vs Promises
 
