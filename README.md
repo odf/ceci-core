@@ -127,7 +127,9 @@ The output looks like this:
     Are we there yet?
     We are there.
 
-A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword. In this example, while the first go block is suspended, the second one can execute its loop a number of times. It is important to remember that Javascript is single-threaded, which means that executing a `yield` is the only way for a go block to be suspended and allow event handlers or other go blocks to run.
+A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword. In this example, while the first go block is suspended, the second one can execute its loop a number of times.
+
+It is important to remember that Javascript is single-threaded, which means that executing a `yield` is the only way for a go block to be suspended and allow event handlers or other go blocks to run.
 
 ###Deferreds vs Promises
 
@@ -149,6 +151,32 @@ var after = function(ms, val) {
 ```
 
 This produces exactly the same output when used with the remaining code from the previous example.
+
+###Composing Go Blocks
+
+To be useful in practice, go blocks need to be able to return values, so that we can reuse smaller building blocks to form larger ones and finally whole programs. The return value of a `go` call is simply a deferred that will be resolved to the return value of the generator that defines the go block. To see this in action, let's refactor the original `after` function above:
+
+```javascript
+var cc = require('ceci-core');
+
+var delay = function(ms, val) {
+  var result = cc.defer();
+
+  setTimeout(function() {
+    result.resolve(val);
+  }, ms);
+
+  return result;
+};
+
+var after = function(ms, val) {
+  return cc.go(function*() {
+    return (yield delay(ms, val)).split('').reverse().join('');
+  });
+};
+```
+
+Again, this new function can be used in exactly the same way as the original one. But here we have separated the timeout handling (our stand-in for some time-consuming process such as reading from the file system) and value resolution from any further computations done with the result value.
 
 ###An Example Program
 
@@ -184,7 +212,7 @@ var readLines = function(path) {
 };
 ```
 
-This shows how go blocks can be used in a straightforward way to pass on results of asynchronous computations. The call to `go` returns a deferred which is eventually resolved with the return value from the go block itself. We can now use this from another go block in the usual way:
+We can now use this from another go block in the usual way:
 
 ```javascript
 cc.go(function*() {
