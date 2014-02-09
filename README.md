@@ -11,7 +11,7 @@ Ceci currently has three parts or layers, each built on top of the previous ones
 Installation
 ------------
 
-Install the package via Node:
+Install as a Node package:
 
 ```
 npm install ceci-core
