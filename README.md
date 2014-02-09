@@ -144,24 +144,14 @@ The order of the output lines now depends on which reads finished first and can 
 
 ###Deferreds vs Promises
 
-Another point worth noting is that Ceci's deferreds are not meant to be passed along and shared like promises. They are basically throw-away objects with the single purpose of decoupling the producer and consumer of a value. This is because Ceci's higher-level facilities for composing asynchronous computations are based on blocking channels as in Go rather than promises, and the extra functionality such as support for multiple callbacks or chaining is not needed at this level. That said, Ceci also lets us apply a `yield` directly to a promise, which can come in handy when working with libraries that already provide these. To demonstrate, let's rewrite the `after` function from above so that it uses the [q](https://github.com/kriskowal/q/tree/v0.9) library to construct a promise:
+Another point worth noting is that Ceci's deferreds are not meant to be passed along and shared like promises. They are basically throw-away objects with the single purpose of decoupling the producer and consumer of a value. This is because Ceci's higher-level facilities for composing asynchronous computations are based on blocking channels as in Go rather than promises, and the extra functionality such as support for multiple callbacks or chaining is not needed at this level. That said, Ceci also lets us apply a `yield` directly to a promise, which can come in handy when working with libraries that already provide these. To demonstrate, here's a drop-in replacement for the `readFile` function above using the [q](https://github.com/kriskowal/q/tree/v0.9) library:
 
 ```javascript
 var Q = require('q');
-var cc = require('ceci-core');
+var fs = require('fs');
 
-var after = function(ms, val) {
-  var deferred = Q.defer();
-
-  setTimeout(function() {
-    deferred.resolve(val.split('').reverse().join(''));
-  }, ms);
-
-  return deferred.promise;
-};
+var readFile = Q.nbind(fs.readFile, fs);
 ```
-
-This produces exactly the same output when used with the remaining code from the previous example.
 
 ###Composing Go Blocks
 
