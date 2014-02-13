@@ -238,49 +238,6 @@ Much more useful!
 
 Enabling `longStackSupport` incurs some extra memory and runtime costs for each go block execution, so it is probably best to only use it in development.
 
-###An Example Program
-
-To finish off with a slightly more complex example, we will write a small NodeJS application that prints out a file with line numbers prepended to every fifth line. We start with a wrapper for the `readFile` function from Node's `fs` library:
-
-```javascript
-var fs = require('fs');
-var cc = require('ceci-core');
-
-var content = function(path) {
-  var result = cc.defer();
-
-  fs.readFile(path, { encoding: 'utf8' }, function(err, val) {
-    if (err)
-      result.reject(new Error(err));
-    else
-      result.resolve(val);
-  });
-
-  return result;
-};
-```
-
-The next function reads a file via `content` and splits it into individual lines:
-
-```javascript
-var readLines = function(path) {
-  return cc.go(function*() {
-    return (yield content(path)).split('\n');
-  });
-};
-```
-
-We can now use this from another go block in the usual way:
-
-```javascript
-cc.go(function*() {
-  var lines = yield readLines(process.argv[2]);
-
-  for (var i = 1; i <= lines.length; ++i)
-    console.log((i % 5 == 0 ? i : '') + '\t' + lines[i-1]);
-});
-```
-
 ###What's Next?
 
 Go blocks and deferreds get us out of "callback hell" and avoid the typical fragmentation of program logic associated with asynchronous programming. They are a great solution when all we need is to chain together a number of asynchronous calls with some interspersed computation. But the real power of asynchronous computation comes from the ability to do things in parallel, which leads to the problem of maintaining state. In the "Are we there yet?" example, we used a global variable `done` to communicate information between two concurrent go blocks, which is clearly not ideal when things get more complex. Ceci's subsequent layer [ceci-channels](https://github.com/odf/ceci-channels) provides blocking channels, borrowed from the Go language, and from Clojure's core.async, as a message passing abstraction on top of go blocks and deferreds.
