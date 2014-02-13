@@ -194,7 +194,7 @@ cc.go(function*() {
 });
 ```
 
-Note that in the current version of the library, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have a deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. 
+(Note that in version 0.1.x, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have a deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. This will no longer be necessary as of version 0.2.0.)
 
 ###Error Handling Basics
 
