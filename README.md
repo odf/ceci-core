@@ -1,6 +1,23 @@
 ceci-core
 =========
 
+Contents
+--------
+
+* [About](#about)
+* [Installation](#installation)
+* [Documentation](#documentation)
+* [Tutorial](#tutorial)
+  * [Go Blocks](#go-blocks)
+  * [Deferreds](#deferreds)
+  * [Running Things in Parallel](#running-things-in-parallel)
+  * [Deferreds vs Promises](#deferreds-vs-promises)
+  * [Composing Go Blocks](#composing-go-blocks)
+  * [Error Handling Basics](#error-handling-basics)
+  * [More on Error Handling](#more-on-error-handling)
+  * [What's Next](#whats-next)
+* [License](#license)
+
 About
 -----
 
