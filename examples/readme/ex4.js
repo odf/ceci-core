@@ -1,5 +1,5 @@
 var fs = require('fs');
-var cc = require('ceci-core');
+var cc = require('../lib/index');
 
 var content = function(path) {
   var result = cc.defer();

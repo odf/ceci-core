@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs');
-var cc = require('ceci-core');
+var cc = require('../lib/index');
 
 
 var readLines = function(path, cb) {

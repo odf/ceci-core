@@ -1,5 +1,5 @@
 var Q = require('q');
-var cc = require('ceci-core');
+var cc = require('../lib/index');
 
 var after = function(ms, val) {
   var deferred = Q.defer();

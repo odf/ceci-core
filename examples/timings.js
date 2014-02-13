@@ -1,6 +1,6 @@
 'use strict';
 
-var cc = require('ceci-core');
+var cc = require('../lib/index');
 
 var runner = function(code) {
   return function() {

@@ -1,4 +1,4 @@
-var cc = require('ceci-core');
+var cc = require('../lib/index');
 
 console.log("I am main");
 
