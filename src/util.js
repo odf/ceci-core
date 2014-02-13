@@ -37,7 +37,7 @@ var chain = function(initial) {
         val = form;
     }
 
-    return yield val;
+    return val;
   });
 };
 

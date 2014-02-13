@@ -12,15 +12,15 @@ var a = function() {
 
 var b = function() {
   return cc.go(function*() {
-    return yield cc.go(function*() {
-      return yield a();
+    return cc.go(function*() {
+      return a();
     });
   });
 };
 
 var c = function() {
   return cc.go(function*() {
-    return yield b();
+    return b();
   });
 };
 
