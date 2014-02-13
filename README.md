@@ -112,6 +112,8 @@ The output looks something like this:
 
 A `yield` with an expression that evaluates to a deferred suspends the current go block. When the deferred is resolved, the block is scheduled to be resumed with the resulting value. From inside the block, this looks exactly like a blocking function call, except for the fact that we needed to add the `yield` keyword.
 
+###Running Things in Parallel
+
 The code above reads the three files sequentially. We can instead read in parallel while still keeping the output in order by separating the function calls from the `yield` statements that force the results:
 
 ```javascript
@@ -177,7 +179,7 @@ cc.go(function*() {
 
 Note that in the current version of the library, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have a deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. 
 
-###Error handling
+###Error Handling Basics
 
 If you've tried any of the examples above, you may have noticed that we don't see anything like a top-level stack trace when things go wrong, for example when a file to be read does not exist. Instead of working with fixed file names in our example, we can try taking a command line argument to see this more clearly:
 
@@ -207,7 +209,9 @@ Error: Error: ENOENT, open 'package.jsonx'
 This is obviously better, as it gives us an indication of what went wrong and where the error happened. In fact, the first line number mentioned happens to be the one in which the deferred returned by `readFile` is rejected in case of an error. So we can see here that rejected deferreds manifest as exceptions when these deferreds are forced via a `yield`. 
 We also see that errors can bubble up through a chain of nested go blocks. More precisely, an uncaught exception within a go block causes the deferred result of that block to be rejected, which in turn leads to an exception in the calling go block when that result is forced, and so on.
 
-A few subtleties are important: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outmost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
+###More on Error Handling
+
+Ceci's error handling has a few subtleties: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outmost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
 
 To fix the last problem, ceci-core has a global option `longStackSupport` (named after the analogous option for the [q](https://github.com/kriskowal/q/tree/v0.9) library) which can be used as follows:
 
