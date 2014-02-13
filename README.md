@@ -155,29 +155,27 @@ var readFile = Q.nbind(fs.readFile, fs);
 
 ###Composing Go Blocks
 
-To be useful in practice, go blocks need to be able to return values, so that we can reuse smaller building blocks to form larger ones and finally whole programs. The return value of a `go` call is simply a deferred that will be resolved to the return value of the generator that defines the go block. To see this in action, let's refactor the original `after` function above:
+To be useful in practice, go blocks need to be able to return values, so that we can reuse smaller building blocks to form larger ones and finally whole programs. The return value of a `go` call is simply a deferred that will resolve to the return value of the generator that defines the go block. To see this in action, let's write a `fileLength` function based on `readFile`:
 
 ```javascript
-var cc = require('ceci-core');
-
-var delay = function(ms, val) {
-  var result = cc.defer();
-
-  setTimeout(function() {
-    result.resolve(val);
-  }, ms);
-
-  return result;
-};
-
-var after = function(ms, val) {
+var fileLength = function(name) {
   return cc.go(function*() {
-    return (yield delay(ms, val)).split('').reverse().join('');
+    return (yield readFile(name)).length;
   });
 };
 ```
 
-Again, this new function can be used in exactly the same way as the original one. But here we have separated the timeout handling (our stand-in for some time-consuming process such as reading from the file system) and value resolution from any further computations done with the result value.
+This allows us to rewrite the original 'main' function like this:
+
+```javascript
+cc.go(function*() {
+  console.log(yield fileLength('package.json'));
+  console.log(yield fileLength('LICENSE'));
+  console.log(yield fileLength('README.md'));
+});
+```
+
+Note that in the current version of the library, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. 
 
 ###An Example Program
 
