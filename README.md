@@ -228,7 +228,7 @@ We also see that errors can bubble up through a chain of nested go blocks. More 
 
 ###More on Error Handling
 
-Ceci's error handling has a few subtleties: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outmost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
+Ceci's error handling has a few subtleties: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outermost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
 
 To fix the last problem, ceci-core has a global option `longStackSupport` (named after the analogous option for the [q](https://github.com/kriskowal/q/tree/v0.9) library) which can be used as follows:
 
