@@ -175,7 +175,68 @@ cc.go(function*() {
 });
 ```
 
-Note that in the current version of the library, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. 
+Note that in the current version of the library, the value returned from within the go block will always be wrapped in a deferred, which means that it needs to be an immediate value. If you have a deferred, say `x`, that you'd like to pass out, you will need to write your return statement as `return yield x;`. 
+
+###Error handling
+
+If you've tried any of the examples above, you may have noticed that we don't see anything like a top-level stack trace when things go wrong, for example when a file to be read does not exist. Instead of working with fixed file names in our example, we can try taking a command line argument to see this more clearly:
+
+```javascript
+cc.go(function*() {
+  console.log(yield fileLength(process.argv[2]));
+});
+```
+
+Now if we run the program with an existing file, we get a number. For a non-existent file, we get no output and no error messages whatsoever. Let's fix this:
+
+```javascript
+cc.go(function*() {
+  console.log(yield fileLength(process.argv[2]));
+}).then(null, function(ex) { console.log(ex.stack); });
+```
+
+On my system, this produces something like this:
+
+```
+Error: Error: ENOENT, open 'package.jsonx'
+    at /home/olaf/Projects/Ceci/ceci-core/test.js:9:21
+    at fs.js:195:20
+    at Object.oncomplete (fs.js:97:15)
+```
+
+This is obviously better, as it gives us an indication of what went wrong and where the error happened. In fact, the first line number mentioned happens to be the one in which the deferred returned by `readFile` is rejected in case of an error. So we can see here that rejected deferreds manifest as exceptions when these deferreds are forced via a `yield`. 
+We also see that errors can bubble up through a chain of nested go blocks. More precisely, an uncaught exception within a go block causes the deferred result of that block to be rejected, which in turn leads to an exception in the calling go block when that result is forced, and so on.
+
+A few subtleties are important: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outmost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
+
+To fix the last problem, ceci-core has a global option `longStackSupport` (named after the analogous option for the [q](https://github.com/kriskowal/q/tree/v0.9) library) which can be used as follows:
+
+```javascript
+cc.longStackSupport = true;
+
+cc.go(function*() {
+  console.log(yield fileLength(process.argv[2]));
+}).then(null, function(ex) { console.log(ex.stack); });
+```
+
+With this switch on, I see something like this:
+
+```
+Error: Error: ENOENT, open 'package.jsonx'
+    at /home/olaf/Projects/Ceci/ceci-core/test.js:9:21
+    at fs.js:195:20
+    at Object.oncomplete (fs.js:97:15)
+    at Object.Ceci.go (/home/olaf/Projects/Ceci/ceci-core/lib/src/core.js:49:45)
+    at fileLength (/home/olaf/Projects/Ceci/ceci-core/test.js:18:13)
+    at /home/olaf/Projects/Ceci/ceci-core/test.js:26:21
+    at Object.Ceci.go (/home/olaf/Projects/Ceci/ceci-core/lib/src/core.js:49:45)
+    at Object.<anonymous> (/home/olaf/Projects/Ceci/ceci-core/test.js:25:4)
+    [...]
+```
+
+Much more useful!
+
+Enabling `longStackSupport` incurs some extra memory and runtime costs for each go block execution, so it is probably best to only use it in development.
 
 ###An Example Program
 
@@ -198,8 +259,6 @@ var content = function(path) {
   return result;
 };
 ```
-
-The only thing new here is the `reject` method on deferreds. Its effect is for the go block that the deferred is used in to throw an exception, which is often more useful than throwing directly from within a callback.
 
 The next function reads a file via `content` and splits it into individual lines:
 
