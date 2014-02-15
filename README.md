@@ -15,6 +15,7 @@ Contents
   * [Composing Go Blocks](#composing-go-blocks)
   * [Error Handling Basics](#error-handling-basics)
   * [More on Error Handling](#more-on-error-handling)
+  * [NodeJS helpers](#nodejs-helpers)
   * [What's Next](#whats-next)
 * [License](#license)
 
@@ -258,6 +259,40 @@ Error: Error: ENOENT, open 'package.jsonx'
 Much more useful!
 
 Enabling `longStackSupport` incurs some extra memory and runtime costs for each go block execution, so it is probably best to only use it in development.
+
+###NodeJS Helpers
+
+Ceci provides a few helpers that make interoperating with libraries that use NodeJS-style callback conventions easier. First, there is `ncallback` which takes a deferred and returns a callback that resolves or rejects that deferred depending on its argument. This allows us to simplify the original `readFile` function from the [Deferreds](#deferreds) section like this:
+
+```javascript
+var fs = require('fs');
+var cc = require('ceci-core');
+
+var readFile = function(name) {
+  var result = cc.defer();
+  fs.readFile(name, cc.ncallback(result));
+  return result;
+};
+```
+
+Going one step further, the `nbind` function takes a function that accepts a callback and returns one that produces a deferred:
+
+```javascript
+var readFile = cc.nbind(fs.readFile);
+```
+
+Additional arguments can be given, which work just like in `Function.prototype.bind`.
+
+Going the other direction, `nodeify` take a deferred and an optional callback. If used with no callback, it simply returns the deferred. Otherwise, it executes the callback accordingly when the deferred is resolved or rejected:
+
+```javascript
+cc.nodeify(fileLength(process.argv[2]), function(err, val) {
+  if (err)
+    console.log('Oops:', err);
+  else
+    console.log(val);
+});
+```
 
 ###What's Next?
 
