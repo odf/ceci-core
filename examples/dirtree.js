@@ -6,16 +6,6 @@ var path = require('path');
 var cc   = require('../lib/index');
 
 
-var join = function(items) {
-  return cc.go(function*() {
-    var result = [];
-    for (var i in items)
-      result.push(yield items[i]);
-    return result;
-  });
-};
-
-
 var tree = function(base, name, prefix) {
   var newbase = path.resolve(base, name);
   var subtree = function(name) { return tree(newbase, name, prefix + '  '); }
@@ -26,7 +16,7 @@ var tree = function(base, name, prefix) {
     if (stat.isDirectory()) {
       var header  = prefix + name + '/';
       var entries = yield cc.nbind(fs.readdir)(newbase);
-      var results = yield join(entries.map(subtree));
+      var results = yield cc.join(entries.map(subtree));
       return [].concat.apply(header, results);
     } else {
       return [prefix + name];

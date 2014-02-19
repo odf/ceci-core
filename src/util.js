@@ -3,6 +3,16 @@
 var cc = require('./core');
 
 
+var join = function(items) {
+  return cc.go(function*() {
+    var result = [];
+    for (var i in items)
+      result.push(yield items[i]);
+    return result;
+  });
+};
+
+
 var lift = function(fn, context) {
   return function() {
     var args = Array.prototype.slice.call(arguments);
@@ -90,6 +100,7 @@ var nodeify = function(deferred, callback) {
 
 
 module.exports = {
+  join     : join,
   lift     : lift,
   chain    : chain,
   sleep    : sleep,
