@@ -29,10 +29,6 @@ var scheduler = function(size) {
 
 var enqueue = scheduler();
 
-var isDeferred = function(x) {
-  return x != null && typeof x.then == 'function';
-};
-
 
 var Ceci = module.exports = {};
 
@@ -57,14 +53,9 @@ Ceci.go = function(generator) {
       var step = success ? gen.next(last) : gen['throw'](last);
       var val = step.value;
 
-      if (step.done) {
-        if (isDeferred(val))
-          val.then(
-            function(x) { result.resolve(x); },
-            function(x) { result.reject(x); });
-        else
-          result.resolve(val);
-      } else if (isDeferred(val))
+      if (step.done)
+        result.resolve(val);
+      else if (val != null && typeof val.then == 'function')
         val.then(succeed, fail);
       else
         succeed(val);

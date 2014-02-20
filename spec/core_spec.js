@@ -34,24 +34,6 @@ describe('a go block', function() {
     });
   });
 
-  it('chains deferred return values through without a yield', function(done) {
-    var val = { a: 'value' };
-
-    var f = function() {
-      return cc.go(function*() {
-        return val;
-      });
-    };
-
-    cc.go(function*() {
-      var x = yield cc.go(function*() {
-        return f();
-      });
-      expect(x).toEqual(val);
-      done();
-    });
-  });
-
   it('passes along uncaught exceptions from its generator', function(done) {
     var msg = 'Ouch!';
 
