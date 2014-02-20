@@ -3,6 +3,11 @@
 var cc = require('./core');
 
 
+var top = function(deferred) {
+  deferred.then(null, function(ex) { console.log(ex.stack); });
+};
+
+
 var join = function(items) {
   return cc.go(function*() {
     var result = [];
@@ -100,6 +105,7 @@ var nodeify = function(deferred, callback) {
 
 
 module.exports = {
+  top      : top,
   join     : join,
   lift     : lift,
   chain    : chain,

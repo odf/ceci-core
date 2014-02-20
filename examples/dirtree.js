@@ -27,8 +27,7 @@ var tree = function(base, name, prefix) {
 
 var location = process.argv[2].replace(/\/+$/, '');
 
-cc.go(function*() {
+cc.top(cc.go(function*() {
   var results = yield tree('.', location, '');
   console.log(results.join('\n'));
-})
-.then(null, function(ex) { console.log(ex.stack); });
+}));

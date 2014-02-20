@@ -24,4 +24,4 @@ var c = function() {
   });
 };
 
-c().then(null, function(ex) { console.log(ex.stack); });
+cc.top(c());
