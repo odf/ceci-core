@@ -22,10 +22,7 @@ var lift = function(fn, context) {
   return function() {
     var args = Array.prototype.slice.call(arguments);
     return cc.go(function*() {
-      var i;
-      for (i = 0; i < args.length; ++i)
-        args[i] = yield args[i];
-      return fn.apply(context, args);
+      return fn.apply(context, yield join(args));
     });
   };
 };
