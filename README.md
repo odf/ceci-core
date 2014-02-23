@@ -211,8 +211,12 @@ Now if we run the program with an existing file, we get a number. For a non-exis
 
 ```javascript
 cc.go(function*() {
-  console.log(yield fileLength(process.argv[2]));
-}).then(null, function(ex) { console.log(ex.stack); });
+  try {
+    console.log(yield fileLength(process.argv[2]));
+  } catch(ex) {
+    console.log(ex.stack);
+  }
+});
 ```
 
 On my system, this produces something like this:
@@ -224,21 +228,30 @@ Error: Error: ENOENT, open 'package.jsonx'
     at Object.oncomplete (fs.js:97:15)
 ```
 
-This is obviously better, as it gives us an indication of what went wrong and where the error happened. In fact, the first line number mentioned happens to be the one in which the deferred returned by `readFile` is rejected in case of an error. So we can see here that rejected deferreds manifest as exceptions when these deferreds are forced via a `yield`. 
-We also see that errors can bubble up through a chain of nested go blocks. More precisely, an uncaught exception within a go block causes the deferred result of that block to be rejected, which in turn leads to an exception in the calling go block when that result is forced, and so on.
+In my version of the code, line 9 happens to be where `readFile` rejects the deferred it returns in case of an error. So we see that rejected deferreds manifest as exceptions when forced via a `yield`. We also see that errors can bubble up through a chain of nested go blocks. More precisely, an uncaught exception within a go block causes the deferred result of that block to be rejected, which in turn leads to an exception in the calling go block when that result is forced, and so on.
+
+Ceci provides a little utility wrapper for handling uncaught exceptions on a 'top level' deferred:
+
+```javascript
+cc.top(cc.go(function*() {
+  console.log(yield fileLength(process.argv[2]));
+}));
+```
+
+This produces the same stack trace as above.
 
 ###More on Error Handling
 
-Ceci's error handling has a few subtleties: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outermost go block in the call chain has nowhere to propagate to, so we need to explicitly establish an exception handler for it, as we have done in the example. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
+Ceci's error handling has a few subtleties: first, errors can only be propagated outward if each nested go block in the chain is actually forced with a `yield`. Second, the outermost go block in the call chain has nowhere to propagate to, so we need to explicitly catch exceptions as in the example above. Third, since normal stack traces reflect the Javascript call chain, which is different from the chain of go blocks, we miss a lot of useful information. For instance, there's no mention of `fileLength` or the 'main' go block in the above.
 
 To fix the last problem, ceci-core has a global option `longStackSupport` (named after the analogous option for the [q](https://github.com/kriskowal/q/tree/v0.9) library) which can be used as follows:
 
 ```javascript
 cc.longStackSupport = true;
 
-cc.go(function*() {
+cc.top(cc.go(function*() {
   console.log(yield fileLength(process.argv[2]));
-}).then(null, function(ex) { console.log(ex.stack); });
+}));
 ```
 
 With this switch on, I see something like this:
