@@ -12,6 +12,18 @@ var t = function(val) {
 };
 
 
+describe('the join function', function() {
+  it('transforms an array of deferreds into a deferred array', function(done) {
+    cc.go(function*() {
+      var a = cc.join([t(1), t(2), t(3)]);
+      expect(typeof a.then).toEqual('function');
+      expect(yield a).toEqual([1,2,3]);
+      done();
+    });
+  });
+});
+
+
 describe('the lift function', function() {
   it('lifts an ordinary function to a function on deferreds', function(done) {
     cc.go(function*() {
