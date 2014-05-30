@@ -60,7 +60,7 @@ Ceci.go = function(generator) {
       else
         succeed(val);
     } catch (ex) {
-      if (context)
+      if (context && typeof ex.stack == 'string')
         ex.stack = 
         ex.stack.replace(/\s*at GeneratorFunctionPrototype.next .*(\n.*)*/, '')
         + context.stack.replace(/.*/, '');

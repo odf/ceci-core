@@ -2,6 +2,8 @@
 
 var cc = require('../index');
 
+cc.longStackSupport = true;
+
 
 describe('a go block', function() {
   it('leaves plain values alone upon a yield', function(done) {
