@@ -3,7 +3,7 @@
 require('setimmediate');
 
 var RingBuffer = require('ceci-buffers').impl.RingBuffer;
-var Deferred   = require('./Deferred');
+var defer      = require('./defer');
 
 
 var scheduler = function(size) {
@@ -32,12 +32,8 @@ var enqueue = scheduler();
 
 var Ceci = module.exports = {};
 
+Ceci.defer = defer;
 Ceci.longStackSupport = false;
-
-
-Ceci.defer = function() {
-  return new Deferred();
-};
 
 
 Ceci.go = function(generator) {

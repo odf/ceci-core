@@ -5,7 +5,7 @@ BUILD=../lib/src
 .js.jso:
 		../node_modules/.bin/regenerator $^ >$@
 
-all:		Deferred.jso core.jso util.jso
+all:		defer.jso core.jso util.jso
 		mkdir -p $(BUILD) && \
 		cp $^ $(BUILD) && \
 		cd $(BUILD) && \
