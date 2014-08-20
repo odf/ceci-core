@@ -28,7 +28,7 @@
     "setimmediate": "~1.0.1"
   },
   "devDependencies": {
-    "regenerator": "~0.3.9",
+    "regenerator": "~0.4.9",
     "jasmine-node": "~1.13.0",
     "kew": "~0.3.4"
   },
