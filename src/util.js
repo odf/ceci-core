@@ -10,8 +10,9 @@ var top = function(deferred) {
 
 var join = function(items) {
   return cc.go(function*() {
-    var result = [];
-    for (var i in items)
+    var result, i;
+    result = [];
+    for (i = 0; i < items.length; ++i)
       result.push(yield items[i]);
     return result;
   });
@@ -33,9 +34,9 @@ var chain = function(initial) {
 
   return cc.go(function*() {
     var val = initial;
-    var form;
+    var form, i;
 
-    for (var i = 0; i < args.length; ++i) {
+    for (i = 0; i < args.length; ++i) {
       form = args[i];
       val = yield val;
 
